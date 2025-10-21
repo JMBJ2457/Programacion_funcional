@@ -35,6 +35,41 @@
 - **Accesibilidad** básica: etiquetas `label`, foco visible, semántica en títulos.
 - **Footer**: texto de uso educativo y derechos.
 
+## Programación Funcional (FP)
+
+- **Módulo**: `tienda_autos/js/fp.js` con utilidades: `map`, `filter`, `reduce`, `find`, `pipe`, `between`, `toLower`, `sortBy`, etc.
+- **Uso en `tienda_autos/js/app.js`**:
+  - Cálculo de límites con `map + reduce` sin mutar estado original.
+  - Pipeline de filtrado declarativo con `pipe(filter(...), filter(...))`.
+  - Predicados puros: por texto y por rango de precio.
+
+Ejemplos rápidos:
+
+```js
+import { filter as ffilter, map as fmap, reduce as freduce, pipe, toLower, between } from './tienda_autos/js/fp.js';
+
+const prices = fmap(a => a.precio, autos);
+const { minBound, maxBound } = freduce((acc, p) => ({
+  minBound: Math.min(acc.minBound, p),
+  maxBound: Math.max(acc.maxBound, p)
+}), { minBound: Infinity, maxBound: -Infinity }, prices);
+
+const byText = (qn) => (a) => qn === '' || toLower(`${a.marca} ${a.modelo}`).includes(qn);
+const inRange = (min, max) => (a) => between(min, max, a.precio);
+
+const resultado = pipe(
+  ffilter(byText('toyota')),
+  ffilter(inRange(12000, 30000))
+)(autos);
+```
+
+Beneficios del enfoque FP en este proyecto:
+
+- **Código declarativo** y más legible: describe “qué” se hace, no “cómo”.
+- **Funciones puras** y **sin efectos secundarios**: facilitan pruebas y mantenimiento.
+- **Composición**: pequeñas funciones que se combinan en pipelines reutilizables.
+- **Inmutabilidad**: no se modifican los arrays originales; se crean nuevos.
+
 ## Cómo correrlo
 
 1. Desde la carpeta del repo, lanza un server estático (opciones):
